@@ -19,7 +19,7 @@ func (s *Server) acceptLoop() error {
 }
 
 func (s *Server) handleConn(con net.Conn) {
-	p := NewPeer(con, s.delPeerCh, s.msgCh, s.kv)
+	p := NewPeer(con, s.delPeerCh, s.msgCh, s.db)
 
 	s.addPeerCh <- p
 
@@ -40,7 +40,7 @@ func (s *Server) listner() {
 		case <-s.quitCh:
 			return
 		case msg := <-s.msgCh:
-			if err := s.handleMessage(*msg); err != nil {
+			if err := s.handleMessage(msg); err != nil {
 				slog.Error("raw message error", "err", err)
 			}
 		}

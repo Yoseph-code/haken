@@ -1,6 +1,10 @@
 package server
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/Yoseph-code/haken/internal/db"
+)
 
 const (
 	DefaultListenAddr = uint32(7001)
@@ -8,6 +12,7 @@ const (
 
 type Config struct {
 	ListenAddr uint32
+	db.Config
 }
 
 func (c Config) Address() string {

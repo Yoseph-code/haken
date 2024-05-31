@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"net"
 
-	"github.com/Yoseph-code/haken/internal/keyval"
+	"github.com/Yoseph-code/haken/internal/db"
 )
 
 type Server struct {
@@ -18,14 +18,24 @@ type Server struct {
 	quitCh    chan struct{}
 	msgCh     chan *Message
 
-	kv *keyval.KV
+	// kv *keyval.KV
+
+	db *db.DB
 }
 
 func New(cfg ...Config) *Server {
 	c := defaultConfig()
 
+	d := db.New()
+
 	if len(cfg) > 0 {
 		c = cfg[0]
+
+		if cfg[0].Config.FileName != "" {
+			d = db.New(db.Config{
+				FileName: cfg[0].Config.FileName,
+			})
+		}
 	}
 
 	return &Server{
@@ -35,11 +45,16 @@ func New(cfg ...Config) *Server {
 		delPeerCh: make(chan *Peer),
 		quitCh:    make(chan struct{}),
 		msgCh:     make(chan *Message),
-		kv:        keyval.New(),
+		// kv:        keyval.New(),
+		db: d,
 	}
 }
 
 func (s *Server) Run() error {
+	if err := s.db.Init(); err != nil {
+		return err
+	}
+
 	ln, err := net.Listen("tcp", s.Config.Address())
 
 	if err != nil {

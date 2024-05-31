@@ -4,22 +4,22 @@ import (
 	"net"
 	"strings"
 
-	"github.com/Yoseph-code/haken/internal/keyval"
+	"github.com/Yoseph-code/haken/internal/db"
 )
 
 type Peer struct {
 	Con   net.Conn
 	msgCh chan *Message
 	delCh chan *Peer
-	kv    *keyval.KV
+	db    *db.DB
 }
 
-func NewPeer(con net.Conn, delCh chan *Peer, msgCh chan *Message, kv *keyval.KV) *Peer {
+func NewPeer(con net.Conn, delCh chan *Peer, msgCh chan *Message, d *db.DB) *Peer {
 	return &Peer{
 		Con:   con,
 		delCh: delCh,
 		msgCh: msgCh,
-		kv:    kv,
+		db:    d,
 	}
 }
 
