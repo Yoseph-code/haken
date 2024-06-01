@@ -1,75 +1,59 @@
 package db
 
 import (
-	"bytes"
-	"encoding/gob"
-	"errors"
 	"strings"
+	"unicode"
+
+	"github.com/Yoseph-code/haken/internal/fs"
 )
 
-func (db *DB) encodeToBinary(data map[string]interface{}) ([]byte, error) {
-	var buf bytes.Buffer
-	encoder := gob.NewEncoder(&buf)
-	err := encoder.Encode(data)
-	if err != nil {
-		return nil, err
-	}
-	return buf.Bytes(), nil
-}
+func (db *DB) Set(key string, value []byte) error {
+	filename, err := db.GetSourceDB()
 
-func (db *DB) decodeFromBinary(binaryData []byte) (map[string]interface{}, error) {
+	if err != nil {
+		return err
+	}
+
 	var data map[string]interface{}
-	buf := bytes.NewBuffer(binaryData)
-	decoder := gob.NewDecoder(buf)
-	err := decoder.Decode(&data)
+
+	err = fs.LoadFromFile(filename, &data)
+
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return data, nil
+
+	data[key] = strings.TrimRightFunc(string(value), unicode.IsSpace)
+
+	if err := fs.SaveToFile(
+		filename,
+		map[string]interface{}{
+			key: strings.TrimRightFunc(string(value), unicode.IsSpace),
+		},
+	); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (db *DB) Get(key string) (interface{}, bool) {
-	b, err := db.Read()
+func (db *DB) Get(key string) (string, bool) {
+	filename, err := db.GetSourceDB()
 
 	if err != nil {
-		return nil, false
+		return "", false
 	}
 
-	data, err := db.decodeFromBinary(b)
+	var data map[string]interface{}
+
+	err = fs.LoadFromFile(filename, &data)
 
 	if err != nil {
-		return nil, false
+		return "", false
 	}
 
-	val, ok := data[key]
-
-	return val, ok
-}
-
-func (db *DB) Set(key string, val []byte) error {
-	b, err := db.Read()
-
-	if err != nil {
-		return err
+	if val, ok := data[key]; ok {
+		return val.(string), true
 	}
 
-	data, err := db.decodeFromBinary(b)
-
-	if err != nil {
-		return err
-	}
-
-	if _, ok := data[key]; ok {
-		return errors.New("key already exists")
-	}
-
-	data[key] = strings.TrimSpace(string(val))
-
-	b, err = db.encodeToBinary(data)
-
-	if err != nil {
-		return err
-	}
-
-	return db.Write(b)
+	return "", false
 }

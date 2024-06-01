@@ -1,19 +1,38 @@
 package db
 
-type DB struct {
-	Config
+import (
+	"os"
+	"path"
+)
 
-	db *string
+const (
+	defaultSourceName string = "default"
+	extFile           string = ".db"
+	defaultDir        string = "haken"
+)
+
+type DB struct {
+	SourceName string
 }
 
-func New(cfg ...Config) *DB {
-	c := defaultConfig()
+func New(sourceName ...string) *DB {
+	s := defaultSourceName
 
-	if len(cfg) > 0 {
-		c = cfg[0]
+	if len(sourceName) > 0 {
+		s = sourceName[0]
 	}
 
 	return &DB{
-		Config: c,
+		SourceName: s,
 	}
+}
+
+func (db *DB) GetSourceDB() (string, error) {
+	pwd, err := os.Getwd()
+
+	if err != nil {
+		return "", err
+	}
+
+	return path.Join(pwd, defaultDir, db.SourceName+extFile), nil
 }

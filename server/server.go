@@ -31,10 +31,8 @@ func New(cfg ...Config) *Server {
 	if len(cfg) > 0 {
 		c = cfg[0]
 
-		if cfg[0].Config.FileName != "" {
-			d = db.New(db.Config{
-				FileName: cfg[0].Config.FileName,
-			})
+		if cfg[0].DB.SourceName != "" {
+			d = db.New(cfg[0].DB.SourceName)
 		}
 	}
 
@@ -45,16 +43,11 @@ func New(cfg ...Config) *Server {
 		delPeerCh: make(chan *Peer),
 		quitCh:    make(chan struct{}),
 		msgCh:     make(chan *Message),
-		// kv:        keyval.New(),
-		db: d,
+		db:        d,
 	}
 }
 
 func (s *Server) Run() error {
-	if err := s.db.Init(); err != nil {
-		return err
-	}
-
 	ln, err := net.Listen("tcp", s.Config.Address())
 
 	if err != nil {
