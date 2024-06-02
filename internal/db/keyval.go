@@ -1,12 +1,10 @@
 package db
 
 import (
-	"strings"
-
 	"github.com/Yoseph-code/haken/internal/fs"
 )
 
-func (db *DB) Set(key string, value []byte) error {
+func (db *DB) Set(key, value string) error {
 	filename, err := db.GetSourceDB()
 
 	if err != nil {
@@ -14,7 +12,7 @@ func (db *DB) Set(key string, value []byte) error {
 	}
 
 	return fs.Append(filename, map[string]string{
-		key: strings.TrimSuffix(string(value), "\n"),
+		key: value,
 	})
 }
 

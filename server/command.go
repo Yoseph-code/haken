@@ -8,23 +8,36 @@ import (
 )
 
 const (
-	GET  = string("GET")
-	SET  = string("SET")
-	PING = string("PING")
+	OK     string = "OK"
+	EMPTY  string = ""
+	ERR    string = "ERR"
+	CREATE string = "CREATE"
+	READ   string = "READ"
+	UPDATE string = "UPDATE"
+	REMOVE string = "REMOVE"
+	PING   string = "PING"
 )
 
 type Command interface{}
 
-type SetCommand struct {
-	Key, Val []byte
+type CreateCommand struct {
+	Key, Val string
 }
 
-type GetCommand struct {
-	Key []byte
+type ReadCommand struct {
+	Key string
+}
+
+type UpdateCommand struct {
+	Key, Val string
+}
+
+type RemoveCommand struct {
+	Key string
 }
 
 type PingCommand struct {
-	Value string
+	Val string
 }
 
 func RespWriteMap(m map[string]string) []byte {
