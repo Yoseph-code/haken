@@ -36,7 +36,7 @@ func (s *Server) handleMessage(msg *Message) error {
 	case PingCommand:
 		if err := resp.
 			NewWriter(msg.peer.Con).
-			WriteString("PONG"); err != nil {
+			WriteString(v.Value); err != nil {
 			return err
 		}
 	}

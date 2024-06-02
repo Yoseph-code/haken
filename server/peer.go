@@ -68,6 +68,10 @@ func (p *Peer) Reader() error {
 						Val: []byte(command[1]),
 					}
 				}
+			case PING:
+				cmd = PingCommand{
+					Value: "PONG",
+				}
 			}
 
 			if cmd != nil {
