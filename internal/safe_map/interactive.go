@@ -43,3 +43,19 @@ func (sm *SafeMap[T]) Copy() map[string]T {
 	sm.mu.RUnlock()
 	return m
 }
+
+func (sm *SafeMap[T]) Uion(m *SafeMap[T]) map[string]T {
+	sm.mu.Lock()
+
+	data := sm.Copy()
+
+	for k, v := range m.Copy() {
+		if _, ok := data[k]; !ok {
+			data[k] = v
+		}
+	}
+
+	sm.mu.Unlock()
+
+	return data
+}
