@@ -24,14 +24,8 @@ type Server struct {
 func New(cfg ...Config) *Server {
 	c := defaultConfig()
 
-	d := db.New()
-
 	if len(cfg) > 0 {
 		c = cfg[0]
-
-		if cfg[0].DB.SourceName != "" {
-			d = db.New(cfg[0].DB.SourceName)
-		}
 	}
 
 	return &Server{
@@ -41,7 +35,7 @@ func New(cfg ...Config) *Server {
 		delPeerCh: make(chan *Peer),
 		quitCh:    make(chan struct{}),
 		msgCh:     make(chan *Message),
-		db:        d,
+		db:        c.DB,
 	}
 }
 

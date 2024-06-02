@@ -4,6 +4,7 @@ import (
 	"os"
 	"path"
 
+	"github.com/Yoseph-code/haken/internal/fs"
 	safeMap "github.com/Yoseph-code/haken/internal/safe_map"
 )
 
@@ -14,30 +15,45 @@ const (
 )
 
 type DB struct {
-	SourceName string
+	sourceName string
 
 	sm *safeMap.SafeMap[string]
 }
 
-func New(sourceName ...string) *DB {
+func NewSource(sourceName ...string) (*DB, error) {
 	s := defaultSourceName
 
 	if len(sourceName) > 0 {
 		s = sourceName[0]
 	}
 
-	return &DB{
-		SourceName: s,
-		sm:         safeMap.NewSafeMap[string](),
-	}
-}
-
-func (db *DB) GetSourceDB() (string, error) {
 	pwd, err := os.Getwd()
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return path.Join(pwd, defaultDir, db.SourceName+extFile), nil
+	dirname := path.Join(pwd, defaultDir)
+	filename := path.Join(pwd, defaultDir, s+extFile)
+
+	if ok := fs.IsDirExist(dirname); !ok {
+		err := fs.CreateDir(dirname)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if ok := fs.IsFileExist(filename); !ok {
+		err := fs.CreateFile(filename)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &DB{
+		sourceName: filename,
+		sm:         safeMap.NewSafeMap[string](),
+	}, nil
 }

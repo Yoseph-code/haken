@@ -5,25 +5,13 @@ import (
 )
 
 func (db *DB) Set(key, value string) error {
-	filename, err := db.GetSourceDB()
-
-	if err != nil {
-		return err
-	}
-
-	return fs.Append(filename, map[string]string{
+	return fs.Append(db.sourceName, map[string]string{
 		key: value,
 	})
 }
 
 func (db *DB) Get(key string) (string, bool) {
-	filename, err := db.GetSourceDB()
-
-	if err != nil {
-		return err.Error(), false
-	}
-
-	data, err := fs.Load(filename)
+	data, err := fs.Load(db.sourceName)
 
 	if err != nil {
 		return err.Error(), false

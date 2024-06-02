@@ -12,7 +12,7 @@ const (
 
 type Config struct {
 	ListenAddr uint32
-	db.DB
+	*db.DB
 }
 
 func (c Config) Address() string {
