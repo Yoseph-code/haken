@@ -18,8 +18,6 @@ type Server struct {
 	quitCh    chan struct{}
 	msgCh     chan *Message
 
-	// kv *keyval.KV
-
 	db *db.DB
 }
 

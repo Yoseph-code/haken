@@ -3,6 +3,8 @@ package db
 import (
 	"os"
 	"path"
+
+	safeMap "github.com/Yoseph-code/haken/internal/safe_map"
 )
 
 const (
@@ -13,6 +15,8 @@ const (
 
 type DB struct {
 	SourceName string
+
+	sm *safeMap.SafeMap[string]
 }
 
 func New(sourceName ...string) *DB {
@@ -24,6 +28,7 @@ func New(sourceName ...string) *DB {
 
 	return &DB{
 		SourceName: s,
+		sm:         safeMap.NewSafeMap[string](),
 	}
 }
 
