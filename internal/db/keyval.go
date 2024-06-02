@@ -31,9 +31,11 @@ func (db *DB) Get(key string) (string, bool) {
 		return err.Error(), false
 	}
 
-	if val, ok := data[key]; ok {
-		return val, true
+	val, ok := data[key]
+
+	if !ok {
+		return "no value finded for this key", false
 	}
 
-	return err.Error(), false
+	return val, true
 }
