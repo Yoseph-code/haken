@@ -22,18 +22,18 @@ func (db *DB) Get(key string) (string, bool) {
 	filename, err := db.GetSourceDB()
 
 	if err != nil {
-		return "", false
+		return err.Error(), false
 	}
 
 	data, err := fs.Load(filename)
 
 	if err != nil {
-		return "", false
+		return err.Error(), false
 	}
 
 	if val, ok := data[key]; ok {
 		return val, true
 	}
 
-	return "", false
+	return err.Error(), false
 }
