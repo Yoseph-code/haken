@@ -2,7 +2,6 @@ package db
 
 import (
 	"strings"
-	"unicode"
 
 	"github.com/Yoseph-code/haken/internal/fs"
 )
@@ -14,26 +13,9 @@ func (db *DB) Set(key string, value []byte) error {
 		return err
 	}
 
-	var data map[string]interface{}
-
-	err = fs.LoadFromFile(filename, &data)
-
-	if err != nil {
-		return err
-	}
-
-	data[key] = strings.TrimRightFunc(string(value), unicode.IsSpace)
-
-	if err := fs.SaveToFile(
-		filename,
-		map[string]interface{}{
-			key: strings.TrimRightFunc(string(value), unicode.IsSpace),
-		},
-	); err != nil {
-		return err
-	}
-
-	return nil
+	return fs.Append(filename, map[string]string{
+		key: strings.TrimSuffix(string(value), "\n"),
+	})
 }
 
 func (db *DB) Get(key string) (string, bool) {
@@ -43,16 +25,14 @@ func (db *DB) Get(key string) (string, bool) {
 		return "", false
 	}
 
-	var data map[string]interface{}
-
-	err = fs.LoadFromFile(filename, &data)
+	data, err := fs.Load(filename)
 
 	if err != nil {
 		return "", false
 	}
 
 	if val, ok := data[key]; ok {
-		return val.(string), true
+		return val, true
 	}
 
 	return "", false

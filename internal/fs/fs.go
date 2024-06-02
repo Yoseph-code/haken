@@ -1,110 +1,95 @@
 package fs
 
 import (
-	"bytes"
-	"encoding/binary"
-	"encoding/gob"
+	"compress/gzip"
+	"fmt"
 	"io"
 	"os"
+	"strings"
 )
 
-func LoadFile(name string) ([]byte, int, error) {
-	file, err := os.OpenFile(name, os.O_RDONLY, 0644)
+func setKeyVal(k, v string) []byte {
+	return []byte(fmt.Sprintf("%s=%s\n", k, v))
+}
+
+func Append(filename string, data map[string]string) error {
+	file, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 
 	if err != nil {
-		return nil, 0, err
+		return fmt.Errorf("failed to open file: %v", err)
 	}
 
 	defer file.Close()
 
-	buf := new(bytes.Buffer)
+	old, err := Load(filename)
+
+	if err != nil {
+		return err
+	}
+
+	writer := gzip.NewWriter(file)
+
+	defer writer.Close()
+
+	for k, v := range data {
+		if _, ok := old[k]; ok {
+			return fmt.Errorf("key already exists")
+		}
+
+		if _, err = writer.Write(setKeyVal(k, v)); err != nil {
+			return fmt.Errorf("failed to write to file: %v", err)
+		}
+	}
+
+	return writer.Flush()
+}
+
+func Load(filename string) (map[string]string, error) {
+	file, err := os.Open(filename)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer file.Close()
+
+	data := make(map[string]string)
+
+	reader, err := gzip.NewReader(file)
+
+	if err != nil {
+		if err == io.EOF {
+			return data, nil
+		}
+
+		return nil, err
+	}
+
+	defer reader.Close()
+
+	buf := make([]byte, 1024)
 
 	for {
-		var size int64
-
-		binary.Read(file, binary.LittleEndian, &size)
-
-		n, err := io.CopyN(buf, file, size)
+		n, err := reader.Read(buf)
 
 		if err == io.EOF {
 			break
 		}
 
-		if err != nil {
-			return nil, 0, err
-		}
-
 		if n == 0 {
 			break
 		}
+
+		if err != nil {
+			return nil, err
+		}
+
+		parts := strings.SplitN(string(buf[:n]), "=", 2)
+
+		if len(parts) == 2 {
+			data[parts[0]] = strings.TrimSuffix(parts[1], "\n")
+		}
 	}
 
-	return buf.Bytes(), len(buf.Bytes()), nil
-}
-
-func LoadFromFile(filename string, data interface{}) error {
-	registerTypes()
-
-	file, err := os.Open(filename)
-
-	if err != nil {
-		return err
-	}
-
-	defer file.Close()
-
-	decoder := gob.NewDecoder(file)
-
-	err = decoder.Decode(data)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func registerTypes() {
-	gob.Register(map[string]interface{}{})
-	gob.Register([]interface{}{})
-	gob.Register("")   // string
-	gob.Register(0)    // int
-	gob.Register(0.0)  // float64
-	gob.Register(true) // bool
-}
-
-func SaveToFile(filename string, data map[string]interface{}) error {
-	registerTypes()
-
-	file, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-	encoder := gob.NewEncoder(file)
-	err = encoder.Encode(data)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func AppendFile(filename string, data interface{}) error {
-	file, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-
-	if err != nil {
-		return err
-	}
-
-	defer file.Close()
-
-	encoder := gob.NewEncoder(file)
-
-	err = encoder.Encode(data)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return data, nil
 }
