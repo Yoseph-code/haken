@@ -14,7 +14,7 @@ func setKeyVal(k, v string) []byte {
 	return []byte(fmt.Sprintf("%s=%s\n", k, v))
 }
 
-func Append(filename string, data map[string]string) error {
+func Append(filename string, key, value string) error {
 	file, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 
 	if err != nil {
@@ -23,25 +23,23 @@ func Append(filename string, data map[string]string) error {
 
 	defer file.Close()
 
-	// old, err := Load(filename)
+	old, err := Load(filename)
 
-	// if err != nil {
-	// 	return err
-	// }
+	if err != nil {
+		return err
+	}
 
 	writer := gzip.NewWriter(file)
 
 	defer writer.Close()
 
-	// for k, v := range data {
-	// 	if _, ok := old[k]; ok {
-	// 		return fmt.Errorf("key already exists")
-	// 	}
+	if ok := old.Has(key); ok {
+		return fmt.Errorf("key already exists")
+	}
 
-	// 	if _, err = writer.Write(setKeyVal(k, v)); err != nil {
-	// 		return fmt.Errorf("failed to write to file: %v", err)
-	// 	}
-	// }
+	if _, err = writer.Write(setKeyVal(key, value)); err != nil {
+		return fmt.Errorf("failed to write to file: %v", err)
+	}
 
 	return writer.Flush()
 }

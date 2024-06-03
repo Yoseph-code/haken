@@ -6,29 +6,32 @@ import (
 	"github.com/Yoseph-code/haken/internal/fs"
 )
 
-func (db *DB) Set(key, value string) error {
-	return fs.Append(db.sourceName, map[string]string{
-		key: value,
-	})
+func (db *DB) Create(key, value string) error {
+	data, err := fs.Load(db.sourceName)
+
+	if err != nil {
+		return err
+	}
+
+	defer data.Clear()
+
+	if ok := data.Has(key); ok {
+		return errors.New("key already exists")
+	}
+
+	return fs.Append(db.sourceName, key, value)
 }
 
-func (db *DB) Get(key string) (string, bool) {
-	// data, err := fs.Load(db.sourceName)
+// TODO: implement this
+// func (db *DB) ReadAll() (map[string]string, error) {
+// 	data, err := fs.Load(db.sourceName)
 
-	// if err != nil {
-	// 	return err.Error(), false
-	// }
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	// // val, ok := data[key]
-
-	// // if !ok {
-	// // 	return "no value finded for this key", false
-	// // }
-
-	// return val, true
-
-	return "", false
-}
+// 	return data.Copy(), nil
+// }
 
 func (db *DB) Read(key string) (string, error) {
 	data, err := fs.Load(db.sourceName)
@@ -36,6 +39,8 @@ func (db *DB) Read(key string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
+	defer data.Clear()
 
 	val, ok := data.Get(key)
 

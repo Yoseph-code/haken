@@ -23,8 +23,8 @@ func NewPeer(con net.Conn, delCh chan *Peer, msgCh chan *Message, d *db.DB) *Pee
 	}
 }
 
-func (p *Peer) Send(msg []byte) (int, error) {
-	return p.Con.Write(msg)
+func (p *Peer) Send(msg string) (int, error) {
+	return p.Con.Write([]byte(msg + "\n"))
 }
 
 func (p *Peer) Reader() error {
@@ -43,7 +43,7 @@ func (p *Peer) Reader() error {
 		fields := strings.Fields(string(data))
 
 		if len(fields) == 0 {
-			p.Send([]byte("ERR invalid command \n"))
+			p.Send("ERR invalid command")
 			continue
 		}
 
@@ -54,7 +54,7 @@ func (p *Peer) Reader() error {
 		switch comand {
 		case CREATE:
 			if len(fields[1:]) < 2 {
-				p.Send([]byte("ERR invalid command \n"))
+				p.Send("ERR invalid command")
 				continue
 			}
 
@@ -68,7 +68,7 @@ func (p *Peer) Reader() error {
 			}
 		case READ:
 			if len(fields[1:]) < 1 {
-				p.Send([]byte("ERR invalid command \n"))
+				p.Send("ERR invalid command")
 				continue
 			}
 
@@ -82,7 +82,7 @@ func (p *Peer) Reader() error {
 				Val: "PONG",
 			}
 		default:
-			p.Send([]byte("ERR invalid command \n"))
+			p.Send("ERR invalid command")
 		}
 
 		if cmd != nil {
