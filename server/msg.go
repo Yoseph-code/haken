@@ -24,9 +24,9 @@ func (s *Server) handleMessage(msg *Message) error {
 			return err
 		}
 	case ReadCommand:
-		val, ok := msg.peer.db.Get(v.Key)
-		if !ok {
-			return fmt.Errorf("key not found")
+		val, err := msg.peer.db.Read(v.Key)
+		if err != nil {
+			return err
 		}
 
 		if err := resp.

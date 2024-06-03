@@ -16,7 +16,7 @@ func (sm *SafeMap[T]) Len() int {
 
 func (sm *SafeMap[T]) Keys() []string {
 	sm.mu.RLock()
-	keys := make([]string, 0, len(sm.m))
+	keys := make([]string, 0, sm.Len())
 	for k := range sm.m {
 		keys = append(keys, k)
 	}
@@ -26,7 +26,7 @@ func (sm *SafeMap[T]) Keys() []string {
 
 func (sm *SafeMap[T]) Values() []T {
 	sm.mu.RLock()
-	values := make([]T, 0, len(sm.m))
+	values := make([]T, 0, sm.Len())
 	for _, v := range sm.m {
 		values = append(values, v)
 	}
@@ -36,7 +36,7 @@ func (sm *SafeMap[T]) Values() []T {
 
 func (sm *SafeMap[T]) Copy() map[string]T {
 	sm.mu.RLock()
-	m := make(map[string]T, len(sm.m))
+	m := make(map[string]T, sm.Len())
 	for k, v := range sm.m {
 		m[k] = v
 	}

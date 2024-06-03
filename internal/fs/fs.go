@@ -1,11 +1,13 @@
 package fs
 
 import (
+	"bytes"
 	"compress/gzip"
 	"fmt"
 	"io"
 	"os"
-	"strings"
+
+	safeMap "github.com/Yoseph-code/haken/internal/safe_map"
 )
 
 func setKeyVal(k, v string) []byte {
@@ -21,30 +23,30 @@ func Append(filename string, data map[string]string) error {
 
 	defer file.Close()
 
-	old, err := Load(filename)
+	// old, err := Load(filename)
 
-	if err != nil {
-		return err
-	}
+	// if err != nil {
+	// 	return err
+	// }
 
 	writer := gzip.NewWriter(file)
 
 	defer writer.Close()
 
-	for k, v := range data {
-		if _, ok := old[k]; ok {
-			return fmt.Errorf("key already exists")
-		}
+	// for k, v := range data {
+	// 	if _, ok := old[k]; ok {
+	// 		return fmt.Errorf("key already exists")
+	// 	}
 
-		if _, err = writer.Write(setKeyVal(k, v)); err != nil {
-			return fmt.Errorf("failed to write to file: %v", err)
-		}
-	}
+	// 	if _, err = writer.Write(setKeyVal(k, v)); err != nil {
+	// 		return fmt.Errorf("failed to write to file: %v", err)
+	// 	}
+	// }
 
 	return writer.Flush()
 }
 
-func Load(filename string) (map[string]string, error) {
+func Load(filename string) (*safeMap.SafeMap[string], error) {
 	file, err := os.Open(filename)
 
 	if err != nil {
@@ -53,7 +55,7 @@ func Load(filename string) (map[string]string, error) {
 
 	defer file.Close()
 
-	data := make(map[string]string)
+	data := safeMap.NewSafeMap[string]()
 
 	reader, err := gzip.NewReader(file)
 
@@ -67,7 +69,13 @@ func Load(filename string) (map[string]string, error) {
 
 	defer reader.Close()
 
-	buf := make([]byte, 1024)
+	fi, err := file.Stat()
+
+	if err != nil {
+		return nil, err
+	}
+
+	buf := make([]byte, fi.Size())
 
 	for {
 		n, err := reader.Read(buf)
@@ -84,11 +92,15 @@ func Load(filename string) (map[string]string, error) {
 			return nil, err
 		}
 
-		parts := strings.SplitN(string(buf[:n]), "=", 2)
+		parts := bytes.SplitN(buf[:n], []byte{'='}, 2)
 
 		if len(parts) == 2 {
-			data[parts[0]] = strings.TrimSuffix(parts[1], "\n")
+			if ok := data.Has(string(parts[0])); !ok {
+				data.Set(string(parts[0]), string(bytes.TrimSuffix(parts[1], []byte{'\n'})))
+			}
 		}
+
+		copy(buf, buf[n:])
 	}
 
 	return data, nil
