@@ -24,6 +24,14 @@ func (p *Peer) Send(msg []byte) (int, error) {
 	return p.Con.Write(append(msg, '\n'))
 }
 
+func (p *Peer) Close() error {
+	return p.Con.Close()
+}
+
+func (p *Peer) SendString(msg string) (int, error) {
+	return p.Send([]byte(msg))
+}
+
 func (p *Peer) OK() (int, error) {
 	return p.Send([]byte(OK))
 }

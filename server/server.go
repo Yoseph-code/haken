@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"net"
 
+	"github.com/Yoseph-code/haken/db"
 	"github.com/Yoseph-code/haken/server/peer"
 )
 
@@ -17,6 +18,8 @@ type Server struct {
 	delPeerCh chan *peer.Peer
 	quitCh    chan struct{}
 	msgCh     chan *peer.Message
+
+	db *db.BinaryTree
 }
 
 func New(cfg ...Config) *Server {
@@ -33,7 +36,12 @@ func New(cfg ...Config) *Server {
 		delPeerCh: make(chan *peer.Peer),
 		quitCh:    make(chan struct{}),
 		msgCh:     make(chan *peer.Message),
+		db:        db.NewBinaryTree(nil, nil),
 	}
+}
+
+func (s *Server) SetDB(fs *db.DBFile) {
+	s.db = db.NewBinaryTree(nil, fs)
 }
 
 func (s *Server) Run() error {

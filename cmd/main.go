@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 
+	"github.com/Yoseph-code/haken/db"
 	"github.com/Yoseph-code/haken/server"
 )
 
@@ -17,6 +18,22 @@ func main() {
 	s := server.New(server.Config{
 		ListenAddr: addr,
 	})
+
+	fdb, err := db.NewDBFile()
+
+	if err != nil {
+		log.Panic(err)
+	}
+
+	// file, err := fdb.CreateDB()
+
+	// if err != nil {
+	// 	log.Panic(err)
+	// }
+
+	// defer file.Close()
+
+	s.SetDB(fdb)
 
 	if err := s.Run(); err != nil {
 		log.Panic(err)
