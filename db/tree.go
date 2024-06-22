@@ -149,7 +149,7 @@ func (bt *BinaryTree) InsertToFile(key string, value []byte) error {
 }
 
 func (bt *BinaryTree) LoadFromFile(key string) (string, bool) {
-	err := bt.fs.Load(bt, key)
+	err := bt.fs.Load(bt)
 
 	if err != nil {
 		return "", false

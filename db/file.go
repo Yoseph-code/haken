@@ -88,7 +88,7 @@ func (fs *DBFile) Append(bt *BinaryTree, key string, value []byte) error {
 	return nil
 }
 
-func (fs *DBFile) Load(bt *BinaryTree, props string) error {
+func (fs *DBFile) Load(bt *BinaryTree) error {
 	file, err := os.Open(fs.filename)
 
 	if err != nil {
@@ -114,46 +114,11 @@ func (fs *DBFile) Load(bt *BinaryTree, props string) error {
 			break
 		}
 
-		if string(key) == props {
-			var valueLen uint32
-
-			err = binary.Read(file, binary.BigEndian, &valueLen)
-
-			if err != nil {
-				break
-			}
-
-			value := make([]byte, valueLen)
-
-			_, err = file.Read(value)
-
-			if err != nil {
-				break
-			}
-
-			if bt.Root == nil {
-				bt.Root = &Node{
-					Key:   string(key),
-					Value: value,
-					Left:  nil,
-					Right: nil,
-				}
-
-				break
-
-			} else {
-				bt.insertNode(bt.Root, string(key), value)
-
-				break
-			}
-		}
-
 		var valueLen uint32
 
 		err = binary.Read(file, binary.BigEndian, &valueLen)
 
 		if err != nil {
-
 			break
 		}
 
@@ -172,18 +137,110 @@ func (fs *DBFile) Load(bt *BinaryTree, props string) error {
 				Left:  nil,
 				Right: nil,
 			}
-
-			break
-
 		} else {
 			bt.insertNode(bt.Root, string(key), value)
-
-			break
 		}
 	}
 
 	return nil
 }
+
+// func (fs *DBFile) Load(bt *BinaryTree, props string) error {
+// 	file, err := os.Open(fs.filename)
+
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	defer file.Close()
+
+// 	var keyLen uint32
+
+// 	for {
+// 		err := binary.Read(file, binary.BigEndian, &keyLen)
+
+// 		if err != nil {
+// 			break
+// 		}
+
+// 		key := make([]byte, keyLen)
+
+// 		_, err = file.Read(key)
+
+// 		if err != nil {
+// 			break
+// 		}
+
+// 		if string(key) == props {
+// 			var valueLen uint32
+
+// 			err = binary.Read(file, binary.BigEndian, &valueLen)
+
+// 			if err != nil {
+// 				break
+// 			}
+
+// 			value := make([]byte, valueLen)
+
+// 			_, err = file.Read(value)
+
+// 			if err != nil {
+// 				break
+// 			}
+
+// 			if bt.Root == nil {
+// 				bt.Root = &Node{
+// 					Key:   string(key),
+// 					Value: value,
+// 					Left:  nil,
+// 					Right: nil,
+// 				}
+
+// 				break
+
+// 			} else {
+// 				bt.insertNode(bt.Root, string(key), value)
+
+// 				break
+// 			}
+// 		}
+
+// 		var valueLen uint32
+
+// 		err = binary.Read(file, binary.BigEndian, &valueLen)
+
+// 		if err != nil {
+
+// 			break
+// 		}
+
+// 		value := make([]byte, valueLen)
+
+// 		_, err = file.Read(value)
+
+// 		if err != nil {
+// 			break
+// 		}
+
+// 		if bt.Root == nil {
+// 			bt.Root = &Node{
+// 				Key:   string(key),
+// 				Value: value,
+// 				Left:  nil,
+// 				Right: nil,
+// 			}
+
+// 			break
+
+// 		} else {
+// 			bt.insertNode(bt.Root, string(key), value)
+
+// 			break
+// 		}
+// 	}
+
+// 	return nil
+// }
 
 // func (fs *DBFile) Update(bt *BinaryTree, targetKey string, value []byte) error {
 // 	file, err := os.OpenFile(fs.filename, os.O_RDWR, 0644)
@@ -285,7 +342,6 @@ func (fs *DBFile) traverseAndAppend(node *Node, file *os.File) error {
 		return nil
 	}
 
-	// Append the node's key and value to the file
 	keyBytes := []byte(node.Key)
 	valueLen := make([]byte, 4)
 	binary.BigEndian.PutUint32(valueLen, uint32(len(node.Value)))
@@ -303,7 +359,6 @@ func (fs *DBFile) traverseAndAppend(node *Node, file *os.File) error {
 		return err
 	}
 
-	// Recursively traverse the left and right subtrees
 	err := fs.traverseAndAppend(node.Left, file)
 	if err != nil {
 		return err

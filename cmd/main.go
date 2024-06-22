@@ -4,205 +4,143 @@ import (
 	"flag"
 	"log"
 
+	"github.com/Yoseph-code/haken/cli"
 	"github.com/Yoseph-code/haken/db"
 	"github.com/Yoseph-code/haken/server"
 )
 
+const FlagServer string = "server"
+
+const (
+	FlagUser string = "u"
+	FlagPort string = "p"
+)
+
+func init() {
+	flag.Uint(FlagPort, server.DefaultListenAddr, "port to listen on")
+	flag.String(FlagUser, "", "user to access")
+}
+
 func main() {
-	flag.Uint("p", server.DefaultListenAddr, "HTTP network address")
+	isServer := flag.Bool(FlagServer, false, "start the server")
 
 	flag.Parse()
 
-	addr := flag.Lookup("p").Value.(flag.Getter).Get().(uint)
+	if *isServer {
+		port := flag.Lookup(FlagPort).Value.(flag.Getter).Get().(uint)
 
-	s := server.New(server.Config{
-		ListenAddr: addr,
-	})
+		s := server.New(server.Config{
+			ListenAddr: port,
+		})
 
-	fdb, err := db.NewDBFile()
+		d, err := db.NewDBFile()
 
-	if err != nil {
-		log.Panic(err)
-	}
+		if err != nil {
+			log.Panic(err)
+		}
 
-	// file, err := fdb.CreateDB()
+		if ok := d.IsDBExists(); ok {
+			s.SetDB(d)
+		} else {
+			file, err := d.CreateDB()
 
-	// if err != nil {
-	// 	log.Panic(err)
-	// }
+			if err != nil {
+				log.Panic(err)
+			}
 
-	// defer file.Close()
+			defer file.Close()
 
-	s.SetDB(fdb)
+			s.SetDB(d)
+		}
 
-	if err := s.Run(); err != nil {
-		log.Panic(err)
+		if err := s.Run(); err != nil {
+			log.Panic(err)
+		}
+	} else {
+		port := flag.Lookup(FlagPort).Value.(flag.Getter).Get().(uint)
+
+		c := cli.NewCli("admin", "admin", "localhost", port)
+
+		if err := c.Conect(); err != nil {
+			log.Panic(err)
+		}
+
+		// if err := c.Ping(); err != nil {
+		// 	log.Panic(err)
+		// }
+
+		if err := c.Run(); err != nil {
+			log.Panic(err)
+		}
+
+		// reader := bufio.NewReader(os.Stdin)
+
+		// for {
+		// 	fmt.Print("haken> ")
+
+		// 	input, err := reader.ReadString('\n')
+
+		// 	if err != nil {
+		// 		log.Panic(err)
+		// 	}
+
+		// 	input = strings.TrimSpace(input)
+
+		// 	if input == "exit" {
+		// 		fmt.Print("Bye!")
+		// 		break
+		// 	}
+
+		// 	fmt.Println("Você digitou:", input)
+
+		// 	// fmt.Println("Você digitou:", input)
+
+		// 	// if strings.HasPrefix(input, "set") {
+		// 	// 	fmt.Println("set")
+		// 	// } else if strings.HasPrefix(input, "get") {
+		// 	// 	fmt.Println("get")
+		// 	// } else if strings.HasPrefix(input, "del") {
+		// 	// 	fmt.Println("del")
+		// 	// } else {
+		// 	// 	fmt.Println("Comando não reconhecido")
+		// 	// }
+
+		// 	// fmt.Println("Comando não reconhecido")
+
+		// 	// if strings.HasPrefix(input, "set") {
+		// 	// 	fmt.Println("set")
+		// }
 	}
 }
 
-// import (
-// 	"fmt"
-// 	"strconv"
-// 	"strings"
-// )
-
-// type node struct {
-// 	value int
-// 	left  *node
-// 	right *node
-// }
-
-// func (n node) String() string {
-// 	return strconv.Itoa(n.value)
-// }
-
-// type bst struct {
-// 	root *node
-// 	len  int
-// }
-
-// func (b bst) String() string {
-// 	sb := strings.Builder{}
-// 	b.inOrderTransversal(&sb)
-// 	return sb.String()
-// }
-
-// func (b bst) inOrderTransversal(sb *strings.Builder) {
-// 	b.inOrderTransversalByNode(sb, b.root)
-// }
-
-// func (b bst) inOrderTransversalByNode(sb *strings.Builder, root *node) {
-// 	if root == nil {
-// 		return
-// 	}
-// 	b.inOrderTransversalByNode(sb, root.left)
-// 	sb.WriteString(fmt.Sprintf("%s ", root))
-// 	b.inOrderTransversalByNode(sb, root.right)
-// }
-
-// func (b bst) add(value int) {
-// 	b.root = b.addByNode(b.root, value)
-// 	b.len++
-// }
-
-// func (b *bst) addByNode(root *node, value int) *node {
-// 	if root == nil {
-// 		return &node{value: value, left: nil, right: nil}
-// 	}
-
-// 	if value < root.value {
-// 		root.left = b.addByNode(root.left, value)
-// 	} else if value > root.value {
-// 		root.right = b.addByNode(root.right, value)
-// 	} else {
-// 		root.value = value
-// 	}
-
-// 	return root
-// }
-
-// func (b bst) search(value int) bool {
-// 	return b.searchByNode(b.root, value)
-// }
-
-// func (b bst) searchByNode(root *node, value int) bool {
-// 	if root == nil {
-// 		return false
-// 	}
-
-// 	if value < root.value {
-// 		return b.searchByNode(root.left, value)
-// 	} else if value > root.value {
-// 		return b.searchByNode(root.right, value)
-// 	}
-
-// 	return true
-// }
-
-// func (b bst) remove(value int) {
-// 	b.root = b.removeByNode(b.root, value)
-// }
-
-// func (b *bst) removeByNode(root *node, value int) *node {
-// 	if root == nil {
-// 		return nil
-// 	}
-
-// 	if value < root.value {
-// 		root.left = b.removeByNode(root.left, value)
-// 	} else if value > root.value {
-// 		root.right = b.removeByNode(root.right, value)
-// 	} else {
-// 		if root.left == nil {
-// 			return root.right
-// 		} else if root.right == nil {
-// 			return root.left
-// 		}
-
-// 		root.value = b.minValue(root.right)
-// 		root.right = b.removeByNode(root.right, root.value)
-// 	}
-
-// 	return root
-// }
-
-// func (b bst) minValue(root *node) int {
-// 	minValue := root.value
-// 	for root.left != nil {
-// 		minValue = root.left.value
-// 		root = root.left
-// 	}
-
-// 	return minValue
-// }
-
-// func (b bst) size() int {
-// 	return b.len
-// }
-
-// func (b bst) update(value int) {
-// 	b.root = b.updateByNode(b.root, value)
-// }
-
-// func (b *bst) updateByNode(root *node, value int) *node {
-// 	if root == nil {
-// 		return nil
-// 	}
-
-// 	if value < root.value {
-// 		root.left = b.updateByNode(root.left, value)
-// 	} else if value > root.value {
-// 		root.right = b.updateByNode(root.right, value)
-// 	} else {
-// 		root.value = value
-// 	}
-
-// 	return root
-// }
-
 // func main() {
-// 	n := &node{value: 1, left: nil, right: nil}
-// 	n.left = &node{value: 0, left: nil, right: nil}
-// 	n.right = &node{value: 2, left: nil, right: nil}
+// 	flag.Uint("p", server.DefaultListenAddr, "HTTP network address")
 
-// 	b := bst{root: n, len: 3}
+// 	flag.Parse()
 
-// 	fmt.Println(b)
+// 	addr := flag.Lookup("p").Value.(flag.Getter).Get().(uint)
 
-// 	b.add(3)
-// 	b.add(10)
-// 	b.add(9)
-// 	b.add(7)
-// 	b.add(4)
-// 	b.add(6)
-// 	b.add(8)
-// 	b.add(5)
+// 	s := server.New(server.Config{
+// 		ListenAddr: addr,
+// 	})
 
-// 	fmt.Println(b)
+// 	fdb, err := db.NewDBFile()
 
-// 	fmt.Println(b.search(50))
+// 	if err != nil {
+// 		log.Panic(err)
+// 	}
 
-// 	b.remove(0)
+// 	// file, err := fdb.CreateDB()
 
-// 	fmt.Println(b)
+// 	// if err != nil {
+// 	// 	log.Panic(err)
+// 	// }
+
+// 	// defer file.Close()
+
+// 	s.SetDB(fdb)
+
+// 	if err := s.Run(); err != nil {
+// 		log.Panic(err)
+// 	}
 // }
