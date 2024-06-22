@@ -112,9 +112,51 @@ func (c *Cli) Run() error {
 
 			c.Print(res)
 		case Update:
-			fmt.Println("UPDATE command executed")
+			if len(command) < 3 {
+				fmt.Println("Usage: UPDATE <key> <value>")
+				continue
+			}
+
+			key := command[1]
+
+			value := strings.Join(command[2:], " ")
+
+			res, err := c.SendCommand(fmt.Sprintf("UPDATE %s %s", key, value))
+
+			if err != nil {
+				fmt.Println("Error sending command to server:", err)
+			}
+
+			if strings.Contains(res, "OK") {
+				res = strings.Split(res, "\n")[0]
+			} else {
+				fmt.Println("Invalid response from server")
+				continue
+			}
+
+			c.Print(res)
 		case Remove:
-			fmt.Println("REMOVE command executed")
+			if len(command) < 2 {
+				fmt.Println("Usage: REMOVE <key>")
+				continue
+			}
+
+			key := command[1]
+
+			res, err := c.SendCommand(fmt.Sprintf("REMOVE %s", key))
+
+			if err != nil {
+				fmt.Println("Error sending command to server:", err)
+			}
+
+			if strings.Contains(res, "OK") {
+				res = strings.Split(res, "\n")[0]
+			} else {
+				fmt.Println("Invalid response from server")
+				continue
+			}
+
+			c.Print(res)
 		case Help:
 			printHelp()
 		case Ping:
