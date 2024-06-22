@@ -190,81 +190,26 @@ func (c *Cli) Print(res string) {
 	fmt.Println(strings.Repeat("-", len(showRes)))
 }
 
-// Token representa os diferentes comandos suportados pela CL
+func (c *Cli) PrintRead(key, value string) {
+	showValue := fmt.Sprintf(
+		`
+			| %*s%s%*s |
+			| %*s%s%*s |
+		`,
+		(len(value)-len(key))/2, "", key, (len(value)-len(key))/2, "",
+		(len(value)-len(value))/2, "", value, (len(value)-len(value))/2, "",
+	)
 
-// import (
-// 	"bufio"
-// 	"fmt"
-// 	"os"
-// 	"strings"
-// )
+	fmt.Println(strings.Repeat("-", len(showValue)))
+	fmt.Println(showValue)
+	fmt.Println(strings.Repeat("-", len(showValue)))
 
-// type Cli struct {
-// 	User   string
-// 	Secret string
-// 	Host   string
-// 	Port   uint
-// }
+	// showKey := fmt.Sprintf("|%*s%s%*s|", (len(value)-len(key))/2, "", key, (len(value)-len(key))/2, "")
+	// showValue := fmt.Sprintf("|%*s%s%*s|", (len(value)-len(key))/2, "", value, (len(value)-len(key))/2, "")
 
-// func NewCli(u, s, h string, port uint) *Cli {
-// 	return &Cli{
-// 		User:   u,
-// 		Secret: s,
-// 		Host:   h,
-// 		Port:   port,
-// 	}
-// }
-
-// func (c *Cli) Run() error {
-// 	reader := bufio.NewReader(os.Stdin)
-
-// 	for {
-// 		fmt.Print("haken>")
-
-// 		text, err := reader.ReadString('\n')
-
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		text = strings.TrimSpace(text)
-
-// 		if text == "exit" {
-// 			fmt.Println("Bye!")
-// 			break
-// 		}
-
-// 		command := strings.Fields(text)
-
-// 		if len(command) == 0 {
-// 			continue
-// 		}
-
-// 		token := NewToken(strings.ToUpper(command[0]))
-
-// 		if token.IsInvalid() {
-// 			fmt.Println("Invalid command")
-// 			continue
-// 		}
-
-// 		switch token {
-// 		case Read:
-// 			key := ""
-// 			if len(command) > 1 {
-// 				key = command[1]
-// 			} else {
-// 				fmt.Println("Invalid command")
-// 				continue
-// 			}
-// 			fmt.Println("READ command executed with key:", key)
-// 		case Create:
-// 			fmt.Println("CREATE command executed")
-// 		case Update:
-// 			fmt.Println("UPDATE command executed")
-// 		case Remove:
-// 			fmt.Println("REMOVE command executed")
-// 		}
-// 	}
-
-// 	return nil
-// }
+	// fmt.Println(strings.Repeat("-", len(showValue)))
+	// fmt.Println(showKey)
+	// fmt.Println(strings.Repeat("-", len(showValue)))
+	// fmt.Println(showValue)
+	// fmt.Println(strings.Repeat("-", len(showValue)))
+}
