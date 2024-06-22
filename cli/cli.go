@@ -191,18 +191,18 @@ func (c *Cli) Print(res string) {
 }
 
 func (c *Cli) PrintRead(key, value string) {
-	showValue := fmt.Sprintf(
-		`
-			| %*s%s%*s |
-			| %*s%s%*s |
-		`,
-		(len(value)-len(key))/2, "", key, (len(value)-len(key))/2, "",
-		(len(value)-len(value))/2, "", value, (len(value)-len(value))/2, "",
-	)
+	// showValue := fmt.Sprintf(
+	// 	`
+	// 		| %*s%s%*s |
+	// 		| %*s%s%*s |
+	// 	`,
+	// 	(len(value)-len(key))/2, "", key, (len(value)-len(key))/2, "",
+	// 	(len(value)-len(value))/2, "", value, (len(value)-len(value))/2, "",
+	// )
 
-	fmt.Println(strings.Repeat("-", len(showValue)))
-	fmt.Println(showValue)
-	fmt.Println(strings.Repeat("-", len(showValue)))
+	// fmt.Println(strings.Repeat("-", len(showValue)))
+	// fmt.Println(showValue)
+	// fmt.Println(strings.Repeat("-", len(showValue)))
 
 	// showKey := fmt.Sprintf("|%*s%s%*s|", (len(value)-len(key))/2, "", key, (len(value)-len(key))/2, "")
 	// showValue := fmt.Sprintf("|%*s%s%*s|", (len(value)-len(key))/2, "", value, (len(value)-len(key))/2, "")
