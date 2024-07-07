@@ -6,16 +6,11 @@ import (
 	"path"
 )
 
-const (
-	mainPath string = "haken"
-	mainFile string = "haken.bin"
-)
-
 type DBFile struct {
 	filename string
 }
 
-func NewDBFile() (*DBFile, error) {
+func NewDBFile(mainPath, mainFile string) (*DBFile, error) {
 	pwd, err := os.Getwd()
 
 	if err != nil {

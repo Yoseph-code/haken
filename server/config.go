@@ -1,9 +1,9 @@
 package server
 
-import "fmt"
+import (
+	"fmt"
 
-const (
-	DefaultListenAddr uint = 7777
+	"github.com/Yoseph-code/haken/config"
 )
 
 type Config struct {
@@ -12,7 +12,7 @@ type Config struct {
 
 func defaultConfig() Config {
 	return Config{
-		ListenAddr: DefaultListenAddr,
+		ListenAddr: config.DefaultPort,
 	}
 }
 

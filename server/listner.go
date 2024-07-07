@@ -16,7 +16,21 @@ func (s *Server) acceptPeers() error {
 			continue
 		}
 
-		go s.handleConn(con)
+		go func(con net.Conn) {
+			if err := s.authenticate(con); err != nil {
+				slog.Error("authentication error", "err", err)
+				con.Close()
+				return
+			}
+
+			slog.Info("authenticated", "remoteAddr", con.RemoteAddr())
+
+			s.quitCh <- struct{}{}
+
+			s.handleConn(con)
+		}(con)
+
+		// go s.handleConn(con)
 	}
 }
 

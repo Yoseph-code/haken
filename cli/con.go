@@ -5,12 +5,16 @@ import (
 	"net"
 )
 
-func (c *Cli) Conect() error {
+func (c *Cli) Connect() error {
 	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", c.Host, c.Port))
 
 	if err != nil {
 		return fmt.Errorf("error connecting to server: %w", err)
 	}
+
+	fmt.Println(c.User, c.Secret)
+
+	fmt.Fprintf(conn, "%s:%s\n", c.User, c.Secret)
 
 	c.con = conn
 

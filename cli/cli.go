@@ -6,6 +6,8 @@ import (
 	"net"
 	"os"
 	"strings"
+
+	"github.com/Yoseph-code/haken/config"
 )
 
 type Cli struct {
@@ -40,7 +42,7 @@ func (c *Cli) Run() error {
 
 		text = strings.TrimSpace(text)
 
-		if text == "exit" {
+		if text == config.Q || text == config.QUIT || text == config.EXIT {
 			fmt.Println("Bye!")
 
 			err := c.con.Close()
