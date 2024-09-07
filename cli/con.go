@@ -30,7 +30,7 @@ func (c *Cli) Ping() error {
 
 	response := make([]byte, 1024)
 
-	n, err := (c.con).Read(response)
+	n, err := c.con.Read(response)
 
 	if err != nil {
 		return fmt.Errorf("error reading response from server: %w", err)

@@ -1,19 +1,19 @@
 package config
 
-var (
-	DefaultUser   string = "root"
-	DefaultSecret string = "root123"
-)
+// var (
+// 	DefaultUser   string = "root"
+// 	DefaultSecret string = "root123"
+// )
 
-const (
-	DefaultPort uint   = 7777
-	DefaultAddr string = "localhost"
+// const (
+// 	DefaultPort uint   = 7777
+// 	DefaultAddr string = "localhost"
 
-	MainPath string = "haken"
-	MainFile string = "haken.bin"
+// 	MainPath string = "haken"
+// 	MainFile string = "haken.bin"
 
-	FlagServer string = "s"
-	FlagPort   string = "p"
-	FlagUser   string = "u"
-	FlagSecret string = ""
-)
+// 	FlagServer string = "s"
+// 	FlagPort   string = "p"
+// 	FlagUser   string = "u"
+// 	FlagSecret string = ""
+// )

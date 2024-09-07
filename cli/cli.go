@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Yoseph-code/haken/config"
+	"github.com/Yoseph-code/haken/constant"
 )
 
 type Cli struct {
@@ -32,7 +32,7 @@ func (c *Cli) Run() error {
 	reader := bufio.NewReader(os.Stdin)
 
 	for {
-		fmt.Print("haken> ")
+		fmt.Print(constant.PROMPT)
 
 		text, err := reader.ReadString('\n')
 
@@ -42,7 +42,8 @@ func (c *Cli) Run() error {
 
 		text = strings.TrimSpace(text)
 
-		if text == config.Q || text == config.QUIT || text == config.EXIT {
+		if text == constant.Q.String() || text == constant.QUIT.String() || text == constant.EXIT.String() {
+			// if constant.New(text).IsBye() {
 			fmt.Println("Bye!")
 
 			err := c.con.Close()

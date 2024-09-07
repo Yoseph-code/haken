@@ -1,17 +1,25 @@
 package config
 
-import "flag"
+import (
+	"flag"
 
-const (
-	Server string = "s"
-	Port   string = "p"
-	User   string = "u"
-	Secret string = ""
+	"github.com/Yoseph-code/haken/constants"
 )
 
-func DefineFlags() {
-	flag.Bool(Server, false, "start the server")
-	flag.Uint(Port, DefaultPort, "port to listen on")
-	flag.String(User, DefaultUser, "user to access")
-	flag.String(Secret, DefaultSecret, "secret")
+const (
+	ServerPort   string = "p"
+	ServerUser   string = "u"
+	ServerSecret string = "s"
+	ServerDB     string = "d"
+)
+
+func DefineServerFlags() {
+	flag.Uint(ServerPort, constants.DefaultServerPort, "port to listen on")
+	flag.String(ServerUser, constants.DefaultServerUser, "user to access")
+	flag.String(ServerSecret, constants.DefaultServerSecret, "secret")
+	flag.String(ServerDB, constants.DefaultServerDB, "database")
+}
+
+func ParseFlags() {
+	flag.Parse()
 }

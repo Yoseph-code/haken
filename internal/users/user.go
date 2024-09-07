@@ -1,35 +1,83 @@
 package users
 
 import (
-	"crypto/rand"
-	"encoding/hex"
+	"errors"
+	"fmt"
+)
+
+var (
+	ErrEmptyName = errors.New("empty name")
 )
 
 type User struct {
-	Name   string
-	Secret string
-	Role   Role
+	name   string
+	secret string
+	flag   int
 }
 
-func CreateUser(name, secret string) *User {
+func NewUser(name, secret string, flag int) *User {
 	return &User{
-		Name:   name,
-		Secret: secret,
-		Role:   Role{},
+		name:   name,
+		secret: secret,
+		flag:   flag,
 	}
 }
 
-func salt(size int) (string, error) {
-	salt := make([]byte, size)
-
-	_, err := rand.Read(salt)
-
-	if err != nil {
-		return "", err
+func (u *User) Valid() error {
+	if u.name == "" {
+		return ErrEmptyName
 	}
 
-	return hex.EncodeToString(salt), nil
+	return nil
 }
+
+func (u *User) String() string {
+	return fmt.Sprintf("%s:%s:%d", u.name, u.secret, u.flag)
+}
+
+func (u *User) Bytes() []byte {
+	return []byte(u.String())
+}
+
+func (u *User) Name() string {
+	return u.name
+}
+
+func (u *User) Secret() string {
+	return u.secret
+}
+
+func (u *User) Flag() int {
+	return u.flag
+}
+
+func (u *User) ChangeFlag(flag int) {
+	u.flag = flag
+}
+
+func (u *User) HasFlag(flag int) bool {
+	return u.flag&flag != 0
+}
+
+func (u *User) SetFlag(flag int) {
+	u.flag |= flag
+}
+
+func (u *User) ClearFlag(flag int) {
+	u.flag &= ^flag
+}
+
+// func salt(size int) (string, error) {
+// 	salt := make([]byte, size)
+
+// 	_, err := rand.Read(salt)
+
+// 	if err != nil {
+// 		return "", err
+// 	}
+
+// 	return hex.EncodeToString(salt), nil
+// }
 
 // package main
 
